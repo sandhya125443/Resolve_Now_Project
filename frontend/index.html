@@ -1,0 +1,54 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ResolveNow</title>
+    <style>
+        body { font-family: Arial; padding: 20px; }
+        input, textarea { width: 100%; margin-bottom: 10px; padding: 8px; }
+        button { padding: 10px; background: #007BFF; color: white; border: none; }
+        table { width: 100%; margin-top: 20px; border-collapse: collapse; }
+        th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+    </style>
+</head>
+<body>
+    <h2>ResolveNow: Submit a Complaint</h2>
+    <input type="text" id="name" placeholder="Your Name">
+    <input type="email" id="email" placeholder="Your Email">
+    <textarea id="complaint" placeholder="Your Complaint"></textarea>
+    <button onclick="submitComplaint()">Submit Complaint</button>
+
+    <h3>All Complaints</h3>
+    <table id="complaintsTable">
+        <tr><th>Name</th><th>Email</th><th>Complaint</th><th>Date</th></tr>
+    </table>
+
+    <script>
+        async function submitComplaint() {
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const complaint = document.getElementById('complaint').value;
+
+            await fetch('http://localhost:5000/complaints', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, email, complaint })
+            });
+            loadComplaints();
+        }
+
+        async function loadComplaints() {
+            const res = await fetch('http://localhost:5000/complaints');
+            const complaints = await res.json();
+            const table = document.getElementById('complaintsTable');
+            table.innerHTML = '<tr><th>Name</th><th>Email</th><th>Complaint</th><th>Date</th></tr>';
+            complaints.forEach(c => {
+                const row = `<tr><td>${c.name}</td><td>${c.email}</td><td>${c.complaint}</td><td>${new Date(c.date).toLocaleString()}</td></tr>`;
+                table.innerHTML += row;
+            });
+        }
+
+        loadComplaints();
+    </script>
+</body>
+</html>
